@@ -1,0 +1,53 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+
+
+# Visual Studio Code # 
+.vscode/* 
+!.vscode/settings.json 
+!.vscode/tasks.json 
+!.vscode/launch.json 
+!.vscode/extensions.json 
+.history
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# Environments
+# .env --DON'T DELETE WE NEED THIS FILE--
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
+*.coverage
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# media
+

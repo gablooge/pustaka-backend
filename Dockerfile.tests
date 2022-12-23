@@ -1,0 +1,23 @@
+# this allows dockerfile to *know* about build arguments
+
+FROM python:3.9-alpine3.13 as test
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# To install pgconfig, required for PostgreSQL database engine
+#https://stackoverflow.com/questions/46711990/error-pg-config-executable-not-found-when-installing-psycopg2-on-alpine-in-dock
+RUN apk update && \
+ apk add postgresql-libs && \
+ apk add --virtual .build-deps build-base musl-dev postgresql-dev libffi-dev python3-dev cargo
+
+
+COPY requirements/*.txt /pustaka/requirements/
+
+
+WORKDIR /pustaka
+
+RUN pip install --upgrade pip && \
+    pip install -r requirements/dev.txt -r requirements/base.txt
+
+COPY . /pustaka

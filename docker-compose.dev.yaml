@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:14.2-alpine
+    ports:
+     - 55432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      pustakanetwork:
+
+  apps:
+    image: pustaka_backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: pustaka_dev
+    volumes:
+      - .:/pustaka
+    depends_on:
+      - db
+    environment:
+      - DEBUG=true
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    networks:
+      pustakanetwork:
+
+  test:
+    image: test_pustaka_backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    container_name: pustaka_tests
+    depends_on:
+      - db
+    environment:
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+    command: |-
+        sh -c '
+        cd /pustaka
+        coverage erase
+        coverage run manage.py test --settings=pustaka.settings_local
+        coverage report'
+    networks:
+      pustakanetwork:
+
+networks:
+  pustakanetwork:

@@ -1,0 +1,491 @@
+openapi: 3.0.0
+info:
+  version: "0.1"
+  title: pustaka
+  description: "pustaka is an apps for managing books in the school library."
+  contact:
+    name: "Samsul Hadi"
+    email: "samsulhadikediri@gmail.com"
+
+tags:
+  - name: "Books"
+    description: >-
+      APIs for managing the Books.
+  - name: "Users"
+    description: >-
+      APIs for managing Users.
+
+servers:
+  - url: https://{your-own-host}:{your-own-port}/{your-own-optional-prefix}
+    description: Your own deployment
+
+paths:
+
+  /api/v1/books/{id}/:
+    get:
+      tags:
+       - "Books"
+      summary: Get a book by ID
+      description: |
+        Getting a book by ID.
+
+        Example CURL:
+        ```
+        curl --location --request GET 'http://localhost:8000/api/v1/books/1/' \
+        --header 'Authorization: Bearer {{JWT_TOKEN}}'
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the book in the database
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: >-
+            Return a book
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/book-object"
+
+        401:
+          description: >-
+            Invalid login.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Given token not valid for any token type"
+
+        404:
+          description: >-
+            Data with provided ID is not found.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Not found."
+
+    put:
+      tags:
+       - "Books"
+      summary: Update a book by ID
+      description: |
+        Updating a book by ID.
+
+        Example CURL:
+        ```
+        curl --location --request PUT 'http://localhost:8000/api/v1/books/5/' \
+        --header 'Authorization: Bearer {{JWT_TOKEN}}' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "title": "Dynamic Programming: A Computational Tool",
+            "summary": "Update the summary....",
+            "author": "Samsul Hadi",
+            "cover": "RQUPHWniiihEsU1E1FFAIbVmAn1NFFNbiqbE7E461Rk6miiiRFIZRRRUm6P/9k="
+        }'
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the book in the database
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: >-
+            Return the updated book
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/book-object"
+
+        401:
+          description: >-
+            Invalid login.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Given token not valid for any token type"
+
+        404:
+          description: >-
+            Data with provided ID is not found.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Not found."
+
+    delete:
+      tags:
+       - "Books"
+      summary: Delete a book by ID
+      description: |
+        Deleting a book by ID.
+
+        Example CURL:
+        ```
+        curl --location --request DELETE 'http://localhost:8000/api/v1/books/5/' \
+        --header 'Authorization: Bearer {{JWT_TOKEN}}'
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the book in the database
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: >-
+            Return empty, the data is successfully deleted
+
+        401:
+          description: >-
+            Invalid login.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Given token not valid for any token type"
+
+        404:
+          description: >-
+            Data with provided ID is not found.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Not found."
+
+  /api/v1/books/:
+    get:
+      tags:
+       - "Books"
+      summary: Get book List
+      description: |
+        Getting book List.
+
+        Example CURL:
+        ```
+        curl --location --request GET 'http://localhost:8000/api/v1/books/' \
+        --header 'Authorization: Bearer {{JWT_TOKEN}}'
+        ```
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: >-
+            Return list of book
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/book-object"
+
+        401:
+          description: >-
+            Invalid login.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Given token not valid for any token type"
+
+    post:
+      tags:
+       - "Books"
+      summary: Create a book
+      security:
+        - bearerAuth: []
+      description: |
+        Creating a book.
+
+        Example CURL:
+        ```
+        curl --location --request POST 'http://localhost:8000/api/v1/books/' \
+        --header 'Authorization: Bearer {{JWT_TOKEN}}' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "title": "Dynamic Programming: A Computational Tool",
+            "summary": "Update the summary....",
+            "author": "Samsul Hadi",
+            "cover": "RQUPHWniiihEsU1E1FFAIbVmAn1NFFNbiqbE7E461Rk6miiiRFIZRRRUm6P/9k="
+        }'
+        ```
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                url:
+                  type: string
+      responses:
+        201:
+          description: >-
+            A book created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/book-object"
+        400:
+          description: >-
+            Invalid payload.
+          content:
+            application/json:
+              schema:
+                properties:
+                  url:
+                    type: array
+                    example: ["This field may not be null"]
+
+        401:
+          description: >-
+            Invalid login.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Given token not valid for any token type"
+
+  /api/v1/account/login/:
+    post:
+      tags:
+       - "Users"
+      summary: Logs user into the system
+      description: |
+        Logging in a user with username and password and return user details.
+
+        Example CURL:
+        ```
+        curl --location --request POST 'http://localhost:8000/api/v1/account/login/' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "username": "example@gmail.com",
+            "password": "password"
+        }'
+        ```
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: >-
+            Login success
+          content:
+            application/json:
+              schema:
+                properties:
+                  refresh:
+                    type: string
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ"
+                  access:
+                    type: string
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ"
+        400:
+          description: >-
+            Invalid payload.
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                    example: "This field may not be null"
+                  password:
+                    type: string
+                    example: "This field may not be blank"
+
+        401:
+          description: >-
+            Invalid login.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "No active account found with the given credential"
+                    
+  /api/v1/account/logout/:
+    post:
+      tags:
+       - "Users"
+      summary: Logs out current logged in user session
+      description: |
+        Example CURL:
+        ```
+        curl --location --request POST 'http://localhost:8000/api/v1/account/logout/' \
+        --header 'Authorization: Bearer {{JWT_TOKEN}}' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY0ODk2NzMyNCwiaWF0IjoxNjQ4ODgwOTI0LCJqdGkiOiI0NTg2ODZlNWQ3OTU0NzdkOTM4YWY2NTQwZGUxMzEyMCIsInVzZXJfaWQiOjF9.o_a6vLI14o7Fem9ozKNl9qolOcepn5aE70anrD_RJRY"
+        }'
+        ```
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+                  format: password
+
+      responses:
+        400:
+          description: >-
+            Refresh token is not valid
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    default: False
+                  massage:
+                    type: string
+                    example: "Refresh Token not valid"
+        200:
+          description: >-
+            Access Token Validate.
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    default: True
+                  massage:
+                    type: string
+                    example: "Logout successfully."
+
+  /api/v1/account/token/refresh/:
+    post:
+      tags:
+       - "Users"
+      summary: Refresh the access token or get a new access token
+      description: |
+        Example CURL:
+        ```
+        curl --location --request POST 'http://localhost:8000/api/v1/account/token/refresh/' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY0ODk2NzMyNCwiaWF0IjoxNjQ4ODgwOTI0LCJqdGkiOiI0NTg2ODZlNWQ3OTU0NzdkOTM4YWY2NTQwZGUxMzEyMCIsInVzZXJfaWQiOjF9"
+        }'
+        ```
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+                  format: password
+
+      responses:
+        400:
+          description: >-
+            Invalid payload.
+          content:
+            application/json:
+              schema:
+                properties:
+                  refresh:
+                    type: array
+                    example: ["Token is invalid or expired"]
+        401:
+          description: >-
+            Unauthorized. Refresh token is not valid
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Token is invalid or expired"
+        200:
+          description: >-
+            Get new access token.
+          content:
+            application/json:
+              schema:
+                properties:
+                  access:
+                    type: string
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    book-object:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Dynamic Programming: A Computational Tool"
+        summary:
+          type: string
+          example: Dynamic programming has long been applied to numerous areas in mat- matics, science, engineering, business, medicine, information systems, b- mathematics, arti?cial intelligence, among others. Applications of dynamic programming have increased as recent advances have been made in areas such as neural networks, data mining, soft computing, and other areas of com- tational intelligence. The value of dynamic programming formulations and means to obtain their computational solutions has never been greater. This book describes the use of dynamic programming as a computational tool to solve discrete optimization problems. (1) We ?rst formulate large classes of discrete optimization problems in dynamic programming terms, speci?cally by deriving the dynamic progr- ming functional equations (DPFEs) that solve these problems. A text-based language, gDPS, for expressing these DPFEs is introduced. gDPS may be regarded as a high-level speci?cation language, not a conventional procedural computer programming language, but which can be used to obtain numerical solutions. (2)Wethende?neandexaminepropertiesofBellmannets,aclassofPetri nets that serves both as a formal theoretical model of dynamic programming problems, and as an internal computer data structure representation of the DPFEs that solve these problems. (3)Wealsodescribethedesign,implementation,anduseofasoftwaretool, calledDP2PN2Solver, for solving DPFEs. DP2PN2Solver may be regarded as a program generator, whose input is a DPFE, expressed in the input spec- cation language gDPS and internally represented as a Bellman net, and whose output is its numerical solution that is produced indirectly by the generation of “solver” code, which when executed yields the desired solution.
+        author:
+          type: string
+          example: Art Lew,Holger Mauch
+        cover:
+          type: string
+          format: byte
+          example: U3dhZ2dlciByb2Nrcw==
+        number:
+          type: integer
+          default: 0
+          example: 7
+          description: The number of book
+        created:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
