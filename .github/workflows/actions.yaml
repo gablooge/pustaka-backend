@@ -38,10 +38,6 @@ jobs:
         run: |
           pip3.9 install -r  requirements-dev.txt
           isort . --check-only
-      - name: Run bandit
-        run: |
-          pip3.9 install bandit
-          bandit -c .bandit.yml -r *
       - name: Check licenses
         run: |
           pip3.9 install -r  requirements-dev.txt
@@ -50,3 +46,7 @@ jobs:
         run: |
           pip3.9 install -r  requirements-dev.txt
           pylint --load-plugins=pylint_django --django-settings-module=pustaka.settings *
+      - name: Run bandit
+        run: |
+          pip3.9 install bandit
+          bandit -c .bandit.yml -r *
