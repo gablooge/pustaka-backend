@@ -6,6 +6,7 @@ from users.permissions import IsLibrarian, ReadOnly
 
 
 class BookViewSet(viewsets.ModelViewSet):
+    serializer_class = BookSerializer
     queryset = Book.objects.all()
     permission_classes = [IsLibrarian | ReadOnly]
 
@@ -13,7 +14,7 @@ class BookViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def get_serializer_class(self):
-        if self.request.user.is_librarian():
+        if not self.request.user.is_anonymous and self.request.user.is_librarian():
             return LibrarianBookSerializer
         else:
             return BookSerializer

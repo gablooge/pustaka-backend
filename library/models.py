@@ -1,7 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 
-User = get_user_model()
+from users.models import User
 
 
 class Book(models.Model):
@@ -21,3 +20,18 @@ class Book(models.Model):
 
     def __str__(self):
         return "{}: {}".format(self.id, self.title)
+
+
+class Borrowing(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_borrowed = models.DateTimeField(auto_now_add=True)
+    date_return = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-date_borrowed"]
+
+    def __str__(self):
+        return "{}: Student {}. {} borrow {}. {}".format(
+            self.id, self.student.id, self.student.email, self.book.id, self.book.title
+        )

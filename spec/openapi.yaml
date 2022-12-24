@@ -11,6 +11,9 @@ tags:
   - name: "Books"
     description: >-
       APIs for managing the Books.
+  - name: "Borrowing"
+    description: >-
+      APIs for managing the borrowing books.
   - name: "Users"
     description: >-
       APIs for managing Users.
@@ -20,6 +23,67 @@ servers:
     description: Your own deployment
 
 paths:
+
+  /api/v1/student/{student_id}/borrow/:
+    post:
+      tags:
+       - "Borrowing"
+      summary: Borrow some books for a student
+      parameters:
+        - in: path
+          name: student_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the student in the database
+      security:
+        - bearerAuth: []
+      description: |
+        Borrowing some books.
+
+        Example CURL:
+        ```
+        curl --location --request POST 'http://localhost:8000/api/v1/student/2/borrow/' \
+        --header 'Authorization: Bearer {{JWT_TOKEN}}' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "books": [1,2]
+        }'
+        ```
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/borrow-object"
+      responses:
+        201:
+          description: >-
+            A book created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/borrow-object"
+        400:
+          description: >-
+            Invalid payload.
+          content:
+            application/json:
+              schema:
+                properties:
+                  books:
+                    type: array
+                    example: ["This field may not be null"]
+
+        401:
+          description: >-
+            Invalid login.
+          content:
+            application/json:
+              schema:
+                properties:
+                  detail:
+                    type: string
+                    example: "Given token not valid for any token type"
 
   /api/v1/books/{id}/:
     get:
@@ -102,6 +166,11 @@ paths:
           description: ID of the book in the database
       security:
         - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/book-payload"
       responses:
         200:
           description: >-
@@ -243,9 +312,7 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                url:
-                  type: string
+              "$ref": "#/components/schemas/book-payload"
       responses:
         201:
           description: >-
@@ -261,7 +328,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  url:
+                  title:
                     type: array
                     example: ["This field may not be null"]
 
@@ -459,6 +526,37 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    borrow-object:
+      type: object
+      properties:
+        books:
+          type: array
+          items:
+            type: integer
+          example: [1, 2]
+
+    book-payload:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Dynamic Programming: A Computational Tool"
+        summary:
+          type: string
+          example: Dynamic programming has long been applied to numerous areas in mat- matics, science, engineering, business, medicine, information systems, b- mathematics, arti?cial intelligence, among others. Applications of dynamic programming have increased as recent advances have been made in areas such as neural networks, data mining, soft computing, and other areas of com- tational intelligence. The value of dynamic programming formulations and means to obtain their computational solutions has never been greater. This book describes the use of dynamic programming as a computational tool to solve discrete optimization problems. (1) We ?rst formulate large classes of discrete optimization problems in dynamic programming terms, speci?cally by deriving the dynamic progr- ming functional equations (DPFEs) that solve these problems. A text-based language, gDPS, for expressing these DPFEs is introduced. gDPS may be regarded as a high-level speci?cation language, not a conventional procedural computer programming language, but which can be used to obtain numerical solutions. (2)Wethende?neandexaminepropertiesofBellmannets,aclassofPetri nets that serves both as a formal theoretical model of dynamic programming problems, and as an internal computer data structure representation of the DPFEs that solve these problems. (3)Wealsodescribethedesign,implementation,anduseofasoftwaretool, calledDP2PN2Solver, for solving DPFEs. DP2PN2Solver may be regarded as a program generator, whose input is a DPFE, expressed in the input spec- cation language gDPS and internally represented as a Bellman net, and whose output is its numerical solution that is produced indirectly by the generation of “solver” code, which when executed yields the desired solution.
+        author:
+          type: string
+          example: Art Lew,Holger Mauch
+        cover:
+          type: string
+          format: byte
+          example: U3dhZ2dlciByb2Nrcw==
+        number:
+          type: integer
+          default: 0
+          example: 7
+          description: The number of book
+  
     book-object:
       type: object
       properties:
