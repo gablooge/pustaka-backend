@@ -10,7 +10,7 @@ RUN apt-get update
 
 RUN apt-get install -y libpq-dev libpq5 gcc git build-essential
 
-COPY requirements/*.txt /pustaka/requirements/
+COPY requirements* /pustaka/
 
 WORKDIR /pustaka
 
