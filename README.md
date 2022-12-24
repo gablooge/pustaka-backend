@@ -27,9 +27,8 @@
     python3 -m venv venv
     source ./venv/bin/activate
 
-    # Install base requirements
-    pip install -r requirements/base.txt
-    pip install -r requirements/dev.txt
+    # Install requirements
+    pip install -r requirements-dev.txt
     ```
 
 - Run Local

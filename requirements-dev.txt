@@ -1,0 +1,18 @@
+-r requirements.txt
+
+pytest
+psycopg2-binary
+pytest-cov
+pytest-django
+flake8
+ipython
+parameterized
+black
+isort
+mixer
+coverage
+pylint==2.7.4
+pylint-django==2.4.3
+pylint-plugin-utils==0.6
+bandit==1.7.0
+liccheck==0.5.3
