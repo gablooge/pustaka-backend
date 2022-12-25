@@ -1,0 +1,58 @@
+name: Pustaka Backend
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+      - name: Run tests
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+          python3.9 manage.py test --settings=pustaka.settings_local
+      - name: Run flake8
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+          flake8 . --extend-exclude=dist,build --show-source --statistics
+      - name: Sort imports
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+          isort . --check-only
+      - name: Run safety check
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+          wget https://github.com/pyupio/safety-db/raw/master/data/insecure_full.json
+          wget https://github.com/pyupio/safety-db/raw/master/data/insecure.json
+          safety check --full-report
+      - name: Check licenses
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+          liccheck -s pip-licenses-strategy.ini
+      - name: Run pylint
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+          pylint --load-plugins=pylint_django --django-settings-module=pustaka.settings *
+      - name: Run bandit
+        run: |
+          pip3.9 install bandit
+          bandit -c .bandit.yml -r *

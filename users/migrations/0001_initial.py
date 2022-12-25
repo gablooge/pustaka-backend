@@ -107,12 +107,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "books",
-                    models.ManyToManyField(
-                        blank=True, through="library.Borrowing", to="library.Book"
-                    ),
-                ),
-                (
                     "groups",
                     models.ManyToManyField(
                         blank=True,

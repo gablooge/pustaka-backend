@@ -12,12 +12,12 @@ RUN apk update && \
  apk add --virtual .build-deps build-base musl-dev postgresql-dev libffi-dev python3-dev cargo
 
 
-COPY requirements/*.txt /pustaka/requirements/
+COPY requirements* /pustaka/
 
 
 WORKDIR /pustaka
 
 RUN pip install --upgrade pip && \
-    pip install -r requirements/dev.txt -r requirements/base.txt
+    pip install -r requirements-dev.txt
 
 COPY . /pustaka
