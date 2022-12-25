@@ -38,6 +38,12 @@ jobs:
         run: |
           pip3.9 install -r  requirements-dev.txt
           isort . --check-only
+      - name: Run safety check
+        run: |
+          pip3.9 install -r  requirements-dev.txt
+          wget https://github.com/pyupio/safety-db/raw/master/data/insecure_full.json
+          wget https://github.com/pyupio/safety-db/raw/master/data/insecure.json
+          safety check --full-report
       - name: Check licenses
         run: |
           pip3.9 install -r  requirements-dev.txt

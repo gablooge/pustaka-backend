@@ -11,8 +11,9 @@ black
 isort
 mixer
 coverage
-pylint==2.7.4
-pylint-django==2.4.3
-pylint-plugin-utils==0.6
+pylint==2.15.9
+pylint-django==2.5.3
+pylint-plugin-utils==0.7
 bandit==1.7.0
 liccheck==0.5.3
+safety
