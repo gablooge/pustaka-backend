@@ -93,7 +93,11 @@ CHANNEL_LAYERS = {
 
 DB_NAME = os.environ.get("DB_NAME", "postgres")
 DB_USER = os.environ.get("DB_USER", "postgres")
-DB_HOST = os.environ.get("DB_HOST", "postgres")
+DB_HOST = (
+    "localhost"
+    if os.environ.get("GITHUB_WORKFLOW")
+    else os.environ.get("DB_HOST", "postgres")
+)
 DB_PORT = os.environ.get("DB_PORT", "5432")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
 
