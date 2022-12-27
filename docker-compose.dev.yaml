@@ -51,7 +51,7 @@ services:
         sh -c '
         cd /pustaka
         coverage erase
-        coverage run manage.py test --settings=pustaka.settings_local
+        coverage run manage.py test --settings=pustaka.settings.dev
         coverage report'
     networks:
       pustakanetwork:

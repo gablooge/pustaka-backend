@@ -64,7 +64,7 @@
     For unit testing run the following command in the project root
 
     ```bash
-    python manage.py test --settings=pustaka.settings_local
+    python manage.py test --settings=pustaka.settings.dev
     ```
 
 - Available commands
