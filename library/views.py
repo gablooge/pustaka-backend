@@ -1,4 +1,5 @@
-# from django.shortcuts import render
+"""Views in library apps."""
+
 from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,6 +12,7 @@ from users.permissions import IsLibrarian
 
 # Create your views here.
 class BorrowBookView(APIView):
+
     permission_classes = [
         IsLibrarian,
     ]
@@ -18,8 +20,8 @@ class BorrowBookView(APIView):
     def get_object(self, pk):
         try:
             return Student.objects.get(pk=pk)
-        except Student.DoesNotExist:
-            raise Http404
+        except Student.DoesNotExist as exc:
+            raise Http404 from exc
 
     def post(self, request, pk, *args, **kwargs):
         student = self.get_object(pk)

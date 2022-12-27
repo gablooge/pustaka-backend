@@ -10,6 +10,7 @@ from users.models import User
 
 class LoginTestCase(TestCase):
     def setUp(self):
+        """Create superuser"""
         self.librarian = User.objects.create_superuser(
             username="test_superuser",
             email="test_superuser@test.com",
