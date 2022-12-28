@@ -16,5 +16,4 @@ class BookViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if not self.request.user.is_anonymous and self.request.user.is_librarian():
             return LibrarianBookSerializer
-        else:
-            return BookSerializer
+        return BookSerializer

@@ -21,7 +21,7 @@ class LogoutView(APIView):
             message = "Logout successfully."
             response_status = status.HTTP_200_OK
             success = True
-        except Exception:
+        except BaseException:
             message = "Refresh Token not valid"
             response_status = status.HTTP_400_BAD_REQUEST
 

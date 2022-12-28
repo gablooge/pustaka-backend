@@ -34,7 +34,7 @@ if os.environ.get("ALLOWED_HOSTS"):
     ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(",")
 else:
     # TODO: A more secure default that doesn't break classic installations
-    ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0", "localhost", "pustaka"]
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost", "pustaka"]
 
 TEMPLATES = [
     {
