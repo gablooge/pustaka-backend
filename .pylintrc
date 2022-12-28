@@ -18,7 +18,9 @@ ignore=
     requirements.txt,
     setup.cfg,
     wait-for-postgres.sh,
-    manage.py
+    manage.py,
+    insecure_full.json,
+    insecure.json
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
