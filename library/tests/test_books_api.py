@@ -72,9 +72,7 @@ class BookTestCase(TestCase):
 
     def test_create_by_superuser(self):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer {}".format(
-            self.librarian_token.get("access")
-        )
+        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
         total = Book.objects.count()
         resp = self.client.post(
             uri,
@@ -90,9 +88,7 @@ class BookTestCase(TestCase):
 
     def test_create_by_student(self):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer {}".format(
-            self.student_token.get("access")
-        )
+        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.student_token.get("access")}'
         total = Book.objects.count()
         resp = self.client.post(
             uri,
@@ -129,9 +125,7 @@ class BookTestCase(TestCase):
 
     def test_create_superuser_empty_payload(self):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer {}".format(
-            self.librarian_token.get("access")
-        )
+        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
 
         resp = self.client.post(
             uri,
@@ -153,9 +147,7 @@ class BookTestCase(TestCase):
         self, title, summary, author, total, field, error
     ):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer {}".format(
-            self.librarian_token.get("access")
-        )
+        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
         total = Book.objects.count()
         resp = self.client.post(
             uri,

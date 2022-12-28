@@ -21,7 +21,7 @@ class User(AbstractUser):
 class StudentManager(models.Manager):
     def get_queryset(self):
         return (
-            super(StudentManager, self)
+            super()
             .get_queryset()
             .filter(role=User.UserTypes.STUDENT)
         )
@@ -35,13 +35,13 @@ class Student(User):
 
     def save(self, *args, **kwargs):
         self.role = User.UserTypes.STUDENT
-        return super(Student, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class LibrarianManager(models.Manager):
     def get_queryset(self):
         return (
-            super(LibrarianManager, self)
+            super()
             .get_queryset()
             .filter(role=User.UserTypes.LIBRARIAN)
         )
@@ -55,4 +55,4 @@ class Librarian(User):
 
     def save(self, *args, **kwargs):
         self.role = User.UserTypes.LIBRARIAN
-        return super(Librarian, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

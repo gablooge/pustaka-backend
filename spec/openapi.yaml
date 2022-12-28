@@ -408,7 +408,7 @@ paths:
                   detail:
                     type: string
                     example: "No active account found with the given credential"
-                    
+
   /api/v1/account/logout/:
     post:
       tags:
@@ -556,7 +556,7 @@ components:
           default: 0
           example: 7
           description: The number of book
-  
+
     book-object:
       type: object
       properties:

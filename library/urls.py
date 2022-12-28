@@ -10,7 +10,7 @@ app_name = "library_app"
 
 class OptionalSlashRouter(routers.DefaultRouter):
     def init(self):
-        super().init()
+        super()
         self.trailing_slash = "/?"
 
 

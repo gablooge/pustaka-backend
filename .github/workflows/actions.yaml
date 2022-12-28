@@ -29,7 +29,7 @@ jobs:
       - name: Run tests
         run: |
           pip3.9 install -r  requirements-dev.txt
-          python3.9 manage.py test --settings=pustaka.settings_local
+          python3.9 manage.py test --settings=pustaka.settings.dev
       - name: Run flake8
         run: |
           pip3.9 install -r  requirements-dev.txt
@@ -51,7 +51,7 @@ jobs:
       - name: Run pylint
         run: |
           pip3.9 install -r  requirements-dev.txt
-          pylint --load-plugins=pylint_django --django-settings-module=pustaka.settings *
+          pylint --load-plugins=pylint_django --django-settings-module=pustaka.settings.base *
       - name: Run bandit
         run: |
           pip3.9 install bandit

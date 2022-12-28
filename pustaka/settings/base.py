@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-79gfkx")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.environ.get("DEBUG") in ["true", "True"] else False
 
-ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0", "localhost", "pustaka"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "pustaka"]
 
 
 # Application definition
@@ -93,7 +93,11 @@ CHANNEL_LAYERS = {
 
 DB_NAME = os.environ.get("DB_NAME", "postgres")
 DB_USER = os.environ.get("DB_USER", "postgres")
-DB_HOST = os.environ.get("DB_HOST", "postgres")
+DB_HOST = (
+    "localhost"
+    if os.environ.get("GITHUB_WORKFLOW")
+    else os.environ.get("DB_HOST", "postgres")
+)
 DB_PORT = os.environ.get("DB_PORT", "5432")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
 

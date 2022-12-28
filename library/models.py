@@ -19,7 +19,7 @@ class Book(models.Model):
         ordering = ["-modified"]
 
     def __str__(self):
-        return "{}: {}".format(self.id, self.title)
+        return f"{self.id}:{self.title}"
 
 
 class Borrowing(models.Model):
@@ -32,6 +32,4 @@ class Borrowing(models.Model):
         ordering = ["-date_borrowed"]
 
     def __str__(self):
-        return "{}: Student {}. {} borrow {}. {}".format(
-            self.id, self.student.id, self.student.email, self.book.id, self.book.title
-        )
+        return f"{self.id}: Student {self.student.id}. {self.student.email} borrow {self.book.id}. {self.book.title}"
