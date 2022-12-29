@@ -23,7 +23,9 @@ class LogoutTestCase(TestCase):
 
     def test_logout_user_valid(self):
         uri = reverse("users_api:auth_logout")
-        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
 
         resp = self.client.post(
             uri,
@@ -36,7 +38,9 @@ class LogoutTestCase(TestCase):
 
     def test_logout_user_invalid(self):
         uri = reverse("users_api:auth_logout")
-        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
 
         resp = self.client.post(
             uri,

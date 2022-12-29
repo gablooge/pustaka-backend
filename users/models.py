@@ -20,11 +20,7 @@ class User(AbstractUser):
 
 class StudentManager(models.Manager):
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(role=User.UserTypes.STUDENT)
-        )
+        return super().get_queryset().filter(role=User.UserTypes.STUDENT)
 
 
 class Student(User):
@@ -40,11 +36,7 @@ class Student(User):
 
 class LibrarianManager(models.Manager):
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(role=User.UserTypes.LIBRARIAN)
-        )
+        return super().get_queryset().filter(role=User.UserTypes.LIBRARIAN)
 
 
 class Librarian(User):
