@@ -7,13 +7,13 @@ from library.models import Book
 from users.models import User
 
 
-class BookTestCase(TestCase):
+class CreateBookTestCase(TestCase):
     def setUp(self):
         # librarian
         self.librarian = User.objects.create_superuser(
-            username="test_superuser",
+            username="test_librarian",
             role=User.UserTypes.LIBRARIAN,
-            email="test_superuser@test.com",
+            email="test_librarian@test.com",
             password=settings.TEST_PASSWORD,
         )
         self.librarian.save()
@@ -70,9 +70,13 @@ class BookTestCase(TestCase):
             "number": 6,
         }
 
-    def test_create_by_superuser(self):
+        self.test_create_by_librarian()
+
+    def test_create_by_librarian(self):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
         total = Book.objects.count()
         resp = self.client.post(
             uri,
@@ -88,7 +92,9 @@ class BookTestCase(TestCase):
 
     def test_create_by_student(self):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.student_token.get("access")}'
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.student_token.get("access")}'
         total = Book.objects.count()
         resp = self.client.post(
             uri,
@@ -114,7 +120,7 @@ class BookTestCase(TestCase):
 
     def test_create_no_token(self):
         uri = reverse("library_api:Book-list")
-
+        self.client.defaults["HTTP_AUTHORIZATION"] = ""
         resp = self.client.post(
             uri,
             data={},
@@ -123,9 +129,11 @@ class BookTestCase(TestCase):
         assert resp.status_code == 401
         assert resp.json()["detail"] == "Authentication credentials were not provided."
 
-    def test_create_superuser_empty_payload(self):
+    def test_create_librarian_empty_payload(self):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
 
         resp = self.client.post(
             uri,
@@ -143,11 +151,13 @@ class BookTestCase(TestCase):
             ("", "test", "test", 9, "title", "This field may not be blank."),
         ],
     )
-    def test_create_superuser_invalid_payload(
+    def test_create_librarian_invalid_payload(
         self, title, summary, author, total, field, error
     ):
         uri = reverse("library_api:Book-list")
-        self.client.defaults["HTTP_AUTHORIZATION"] = f'Bearer {self.librarian_token.get("access")}'
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
         total = Book.objects.count()
         resp = self.client.post(
             uri,
@@ -163,3 +173,396 @@ class BookTestCase(TestCase):
         assert resp.status_code == 400
         assert resp.json()[field][0] == error
         assert Book.objects.count() == total
+
+
+class GetListBookTestCase(CreateBookTestCase):
+
+    def test_get_list_by_librarian(self):
+        uri = reverse("library_api:Book-list")
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert len(data) == Book.objects.count()
+        assert "created_by" in data[0]
+        assert resp.status_code == 200
+
+    def test_get_list_by_student(self):
+        uri = reverse("library_api:Book-list")
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.student_token.get("access")}'
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert len(data) == Book.objects.count()
+        assert resp.status_code == 200
+
+    def test_get_list_wrong_token(self):
+        uri = reverse("library_api:Book-list")
+        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer wrong"
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Given token not valid for any token type"
+        assert resp.status_code == 401
+
+    def test_get_list_no_token(self):
+        uri = reverse("library_api:Book-list")
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = ""
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert len(data) == Book.objects.count()
+        assert resp.status_code == 200
+
+
+class GetDetailBookTestCase(CreateBookTestCase):
+
+    def test_get_detail_by_librarian(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["created_by"] == self.librarian.id
+        assert resp.status_code == 200
+
+    def test_get_detail_by_student(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.student_token.get("access")}'
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+
+    def test_get_detail_no_token(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = ""
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+
+    def test_get_detail_wrong_token(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer wrong"
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Given token not valid for any token type"
+        assert resp.status_code == 401
+
+    def test_get_detail_invalid_id(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": 1000},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Not found."
+        assert resp.status_code == 404
+
+
+class DelteBookTestCase(CreateBookTestCase):
+
+    def test_delete_a_book_by_librarian(self):
+        total = Book.objects.count()
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.delete(
+            uri,
+            content_type="application/json",
+        )
+        assert Book.objects.count() == total - 1
+        assert resp.status_code == 204
+
+    def test_delete_a_book_by_student(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.student_token.get("access")}'
+
+        resp = self.client.delete(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "You do not have permission to perform this action."
+        assert resp.status_code == 403
+
+    def test_delete_a_book_wrong_token(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer wrong"
+
+        resp = self.client.delete(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Given token not valid for any token type"
+        assert resp.status_code == 401
+
+    def test_delete_a_book_no_token(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = ""
+
+        resp = self.client.delete(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Authentication credentials were not provided."
+        assert resp.status_code == 401
+
+    def test_delete_a_book_invalid_id(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": 1000},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.delete(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Not found."
+        assert resp.status_code == 404
+
+
+class UpdateBookTestCase(CreateBookTestCase):
+
+    def test_update_a_book_by_librarian(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.put(
+            uri,
+            data=self.valid_payload,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["created_by"] == self.librarian.id
+        assert resp.status_code == 200
+
+    def test_update_a_book_by_student(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.student_token.get("access")}'
+
+        resp = self.client.put(
+            uri,
+            data=self.valid_payload,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "You do not have permission to perform this action."
+        assert resp.status_code == 403
+
+    def test_update_a_book_wrong_token(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer wrong"
+
+        resp = self.client.put(
+            uri,
+            data=self.valid_payload,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Given token not valid for any token type"
+        assert resp.status_code == 401
+
+    def test_update_a_book_no_token(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = ""
+
+        resp = self.client.put(
+            uri,
+            data=self.valid_payload,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Authentication credentials were not provided."
+        assert resp.status_code == 401
+
+    def test_update_librarian_empty_payload(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+        resp = self.client.put(
+            uri,
+            data={},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["title"][0] == "This field is required."
+        assert resp.status_code == 400
+
+    # @pytest.mark.parametrize(
+    #     "client, url, error, get_superuser_token, django_db_setup, create_shorten_url_by_superuser",
+    #     [
+    #         ("", None, "This field may not be null.", "", "", ""),
+    #         ("", "", "This field may not be blank.", "", "", ""),
+    #         ("", "wrong", "Enter a valid URL.", "", "", ""),
+    #     ],
+    #     indirect=[
+    #         "client",
+    #         "get_superuser_token",
+    #         "django_db_setup",
+    #         "create_shorten_url_by_superuser",
+    #     ],
+    # )
+    @parameterized.expand(
+        [
+            # title None
+            (None, "test", "test", 9, "title", "This field may not be null."),
+            # title blank
+            ("", "test", "test", 9, "title", "This field may not be blank."),
+        ],
+    )
+    def test_update_librarian_invalid_payload(
+        self, title, summary, author, total, field, error
+    ):
+        total = Book.objects.count()
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": Book.objects.all()[0].id},
+        )
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+        resp = self.client.put(
+            uri,
+            data={
+                "title": title,
+                "summary": summary,
+                "author": author,
+                "number": total,
+            },
+            content_type="application/json",
+        )
+        data = resp.json()
+
+        assert resp.status_code == 400
+        assert data[field][0] == error
+        assert Book.objects.count() == total
+
+    def test_update_a_book_404(self):
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": 1000},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.put(
+            uri,
+            data={},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Not found."
+        assert resp.status_code == 404
