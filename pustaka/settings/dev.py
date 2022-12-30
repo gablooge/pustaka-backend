@@ -14,7 +14,7 @@ import secrets
 from datetime import timedelta
 
 from pustaka.settings.base import *  # noqa: F403, F401
-from pustaka.settings.base import BASE_DIR
+from pustaka.settings.base import BASE_DIR, INSTALLED_APPS
 
 # TODO: DEFAULT ADMIN PASSWORD
 # load using a file location, ideally
@@ -35,6 +35,11 @@ if os.environ.get("ALLOWED_HOSTS"):
 else:
     # TODO: A more secure default that doesn't break classic installations
     ALLOWED_HOSTS = ["127.0.0.1", "localhost", "pustaka"]
+
+INSTALLED_APPS += [
+    "django_extensions",
+]
+
 
 TEMPLATES = [
     {

@@ -9,6 +9,7 @@ ipython
 parameterized
 black
 isort
+django-extensions
 mixer
 coverage
 pylint==2.15.9

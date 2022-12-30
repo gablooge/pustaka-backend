@@ -19,5 +19,9 @@ router.register(r"books", BookViewSet, basename="Book")
 
 urlpatterns = [
     path("", include(router.urls)),
-    url(r"^student/(?P<pk>[0-9]+)/borrow/$", BorrowBookView.as_view()),
+    url(
+        r"^student/(?P<pk>[0-9]+)/borrow/$",
+        BorrowBookView.as_view(),
+        name="Book-borrow",
+    ),
 ]
