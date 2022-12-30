@@ -581,6 +581,11 @@ components:
           default: 0
           example: 7
           description: The number of book
+        availability:
+          type: integer
+          default: 0
+          example: 5
+          description: Book available
         created:
           type: string
           format: date-time

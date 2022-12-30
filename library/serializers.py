@@ -4,6 +4,15 @@ from library.models import Book, Borrowing
 
 
 class BookSerializer(serializers.ModelSerializer):
+    availability_stock = serializers.SerializerMethodField()
+
+    def get_availability_stock(self, obj):
+        availability = (
+            obj.number
+            - Borrowing.objects.filter(date_return__isnull=True, book=obj).count()
+        )
+        return availability
+
     class Meta:
         model = Book
         fields = (
@@ -13,6 +22,7 @@ class BookSerializer(serializers.ModelSerializer):
             "author",
             "cover",
             "number",
+            "availability_stock",
             "created",
             "modified",
         )
@@ -20,6 +30,15 @@ class BookSerializer(serializers.ModelSerializer):
 
 
 class LibrarianBookSerializer(BookSerializer):
+    availability_stock = serializers.SerializerMethodField()
+
+    def get_availability_stock(self, obj):
+        availability = (
+            obj.number
+            - Borrowing.objects.filter(date_return__isnull=True, book=obj).count()
+        )
+        return availability
+
     class Meta:
         model = Book
         fields = (

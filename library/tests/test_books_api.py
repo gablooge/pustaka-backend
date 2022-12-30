@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
-from library.models import Book
+from library.models import Book, Borrowing
 from users.models import User
 
 
@@ -176,7 +176,6 @@ class CreateBookTestCase(TestCase):
 
 
 class GetListBookTestCase(CreateBookTestCase):
-
     def test_get_list_by_librarian(self):
         uri = reverse("library_api:Book-list")
 
@@ -198,7 +197,7 @@ class GetListBookTestCase(CreateBookTestCase):
 
         self.client.defaults[
             "HTTP_AUTHORIZATION"
-        ] = f'Bearer {self.student_token.get("access")}'
+        ] = f'Bearer {self.librarian_token.get("access")}'
 
         resp = self.client.get(
             uri,
@@ -206,6 +205,7 @@ class GetListBookTestCase(CreateBookTestCase):
         )
         data = resp.json()
         assert len(data) == Book.objects.count()
+        assert "created_by" in data[0]
         assert resp.status_code == 200
 
     def test_get_list_wrong_token(self):
@@ -235,7 +235,6 @@ class GetListBookTestCase(CreateBookTestCase):
 
 
 class GetDetailBookTestCase(CreateBookTestCase):
-
     def test_get_detail_by_librarian(self):
         uri = reverse(
             "library_api:Book-detail",
@@ -320,7 +319,6 @@ class GetDetailBookTestCase(CreateBookTestCase):
 
 
 class DelteBookTestCase(CreateBookTestCase):
-
     def test_delete_a_book_by_librarian(self):
         total = Book.objects.count()
         uri = reverse(
@@ -409,7 +407,6 @@ class DelteBookTestCase(CreateBookTestCase):
 
 
 class UpdateBookTestCase(CreateBookTestCase):
-
     def test_update_a_book_by_librarian(self):
         uri = reverse(
             "library_api:Book-detail",
@@ -499,20 +496,6 @@ class UpdateBookTestCase(CreateBookTestCase):
         assert data["title"][0] == "This field is required."
         assert resp.status_code == 400
 
-    # @pytest.mark.parametrize(
-    #     "client, url, error, get_superuser_token, django_db_setup, create_shorten_url_by_superuser",
-    #     [
-    #         ("", None, "This field may not be null.", "", "", ""),
-    #         ("", "", "This field may not be blank.", "", "", ""),
-    #         ("", "wrong", "Enter a valid URL.", "", "", ""),
-    #     ],
-    #     indirect=[
-    #         "client",
-    #         "get_superuser_token",
-    #         "django_db_setup",
-    #         "create_shorten_url_by_superuser",
-    #     ],
-    # )
     @parameterized.expand(
         [
             # title None
@@ -566,3 +549,105 @@ class UpdateBookTestCase(CreateBookTestCase):
         data = resp.json()
         assert data["detail"] == "Not found."
         assert resp.status_code == 404
+
+
+class BorrowBookTestCase(CreateBookTestCase):
+    def test_student_borrow_book_by_librarian(self):
+        number = Book.objects.all()[0].number
+        uri = reverse("library_api:Book-borrow", kwargs={"pk": self.student.id})
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.post(
+            uri,
+            data={"books": [Book.objects.all()[0].id]},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert (
+            Book.objects.get(pk=data["books"][0]).number
+            - Borrowing.objects.filter(
+                date_return__isnull=True, book=data["books"][0]
+            ).count()
+            == number - 1
+        )
+        assert data["books"] == [Book.objects.all()[0].id]
+        assert resp.status_code == 200
+
+    def test_student_borrow_book_by_student(self):
+        uri = reverse("library_api:Book-borrow", kwargs={"pk": self.student.id})
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.student_token.get("access")}'
+
+        resp = self.client.post(
+            uri,
+            data={},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "You do not have permission to perform this action."
+        assert resp.status_code == 403
+
+    def test_student_borrow_book_wrong_token(self):
+        uri = reverse("library_api:Book-borrow", kwargs={"pk": self.student.id})
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = "Bearer wrong"
+
+        resp = self.client.post(
+            uri,
+            data={},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Given token not valid for any token type"
+        assert resp.status_code == 401
+
+    def test_student_borrow_book_no_token(self):
+        uri = reverse("library_api:Book-borrow", kwargs={"pk": self.student.id})
+
+        self.client.defaults["HTTP_AUTHORIZATION"] = ""
+
+        resp = self.client.post(
+            uri,
+            data={},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Authentication credentials were not provided."
+        assert resp.status_code == 401
+
+    def test_student_borrow_book_404(self):
+        uri = reverse("library_api:Book-borrow", kwargs={"pk": 1000})
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.post(
+            uri,
+            data={"books": [Book.objects.all()[0].id]},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["detail"] == "Not found."
+        assert resp.status_code == 404
+
+    def test_student_borrow_book_invalid_payload(self):
+        uri = reverse("library_api:Book-borrow", kwargs={"pk": self.student.id})
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.post(
+            uri,
+            data={"books": [1000]},
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["books"][0] == 'Invalid pk "1000" - object does not exist.'
+        assert resp.status_code == 400
