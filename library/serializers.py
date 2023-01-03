@@ -26,19 +26,10 @@ class BookSerializer(serializers.ModelSerializer):
             "created",
             "modified",
         )
-        read_only_fields = ("id", "created", "modified")
+        read_only_fields = ("id", "availability_stock", "created", "modified")
 
 
 class LibrarianBookSerializer(BookSerializer):
-    availability_stock = serializers.SerializerMethodField()
-
-    def get_availability_stock(self, obj):
-        availability = (
-            obj.number
-            - Borrowing.objects.filter(date_return__isnull=True, book=obj).count()
-        )
-        return availability
-
     class Meta:
         model = Book
         fields = (
@@ -48,11 +39,18 @@ class LibrarianBookSerializer(BookSerializer):
             "author",
             "cover",
             "number",
+            "availability_stock",
             "created",
             "modified",
             "created_by",
         )
-        read_only_fields = ("id", "created", "modified", "created_by")
+        read_only_fields = (
+            "id",
+            "availability_stock",
+            "created",
+            "modified",
+            "created_by",
+        )
 
 
 class StudentBorrowBookSerializer(serializers.ModelSerializer):

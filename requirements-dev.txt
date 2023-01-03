@@ -10,6 +10,7 @@ parameterized
 black
 isort
 django-extensions
+django-cors-headers
 mixer
 coverage
 pylint==2.15.9

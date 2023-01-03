@@ -13,7 +13,7 @@ import os
 import secrets
 from datetime import timedelta
 
-from pustaka.settings.base import *  # noqa: F403, F401
+from pustaka.settings.base import *  # noqa: F403, F401, F405
 from pustaka.settings.base import BASE_DIR, INSTALLED_APPS
 
 # TODO: DEFAULT ADMIN PASSWORD

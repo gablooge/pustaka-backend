@@ -7,16 +7,16 @@
 
     ``` bash
     # run database
-    docker-compose -f docker-compose.dev.yaml up db -d --build
+    docker compose -f docker-compose.dev.yaml up db -d --build
     # run apps
-    docker-compose -f docker-compose.dev.yaml up apps -d --build
+    docker compose -f docker-compose.dev.yaml up apps -d --build
     ```
 
 - Open the `http://localhost:9090/admin`
 
 - unit test
     ```
-    docker-compose -f docker-compose.dev.yaml up test --build
+    docker compose -f docker-compose.dev.yaml up test --build
     ```
 
 ### run on host machine
