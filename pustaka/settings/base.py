@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "library",
+    "corsheaders",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "pustaka.urls"
@@ -209,3 +211,9 @@ REST_FRAMEWORK = {
 
 BASE_URL = "https://pustaka.com"
 MAXIMUM_URL_CHARS = 7
+
+# CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+    "http://localhost",
+    "http://localhost:80",
+)

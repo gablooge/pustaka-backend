@@ -6,6 +6,13 @@ from library.models import Book, Borrowing
 class BookSerializer(serializers.ModelSerializer):
     availability_stock = serializers.SerializerMethodField()
 
+    def get_availability_stock(self, obj):
+        availability = (
+            obj.number
+            - Borrowing.objects.filter(date_return__isnull=True, book=obj).count()
+        )
+        return availability
+
     class Meta:
         model = Book
         fields = (
@@ -20,13 +27,6 @@ class BookSerializer(serializers.ModelSerializer):
             "modified",
         )
         read_only_fields = ("id", "availability_stock", "created", "modified")
-
-    def get_availability_stock(self, obj):
-        availability = (
-            obj.number
-            - Borrowing.objects.filter(date_return__isnull=True, book=obj).count()
-        )
-        return availability
 
 
 class LibrarianBookSerializer(BookSerializer):
