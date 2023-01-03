@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
-from library.models import Book, Borrowing
+from library.models import Book
 from users.models import User
 
 
@@ -318,7 +318,7 @@ class GetDetailBookTestCase(CreateBookTestCase):
         assert resp.status_code == 404
 
 
-class DelteBookTestCase(CreateBookTestCase):
+class DeleteBookTestCase(CreateBookTestCase):
     def test_delete_a_book_by_librarian(self):
         total = Book.objects.count()
         uri = reverse(
@@ -553,7 +553,27 @@ class UpdateBookTestCase(CreateBookTestCase):
 
 class BorrowBookTestCase(CreateBookTestCase):
     def test_student_borrow_book_by_librarian(self):
-        number = Book.objects.all()[0].number
+        borrowed_book = Book.objects.all()[0]
+        # test check availability stock before book borrowed
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": borrowed_book.id},
+        )
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+
+        assert data["availability_stock"] == borrowed_book.number
+        assert resp.status_code == 200
+
+        # test borrowing a book
         uri = reverse("library_api:Book-borrow", kwargs={"pk": self.student.id})
 
         self.client.defaults[
@@ -562,18 +582,29 @@ class BorrowBookTestCase(CreateBookTestCase):
 
         resp = self.client.post(
             uri,
-            data={"books": [Book.objects.all()[0].id]},
+            data={"books": [borrowed_book.id]},
             content_type="application/json",
         )
         data = resp.json()
-        assert (
-            Book.objects.get(pk=data["books"][0]).number
-            - Borrowing.objects.filter(
-                date_return__isnull=True, book=data["books"][0]
-            ).count()
-            == number - 1
+        assert data["books"] == [borrowed_book.id]
+        assert resp.status_code == 200
+
+        # test check availability stock
+        uri = reverse(
+            "library_api:Book-detail",
+            kwargs={"pk": borrowed_book.id},
         )
-        assert data["books"] == [Book.objects.all()[0].id]
+
+        self.client.defaults[
+            "HTTP_AUTHORIZATION"
+        ] = f'Bearer {self.librarian_token.get("access")}'
+
+        resp = self.client.get(
+            uri,
+            content_type="application/json",
+        )
+        data = resp.json()
+        assert data["availability_stock"] == borrowed_book.number - 1
         assert resp.status_code == 200
 
     def test_student_borrow_book_by_student(self):

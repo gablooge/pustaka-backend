@@ -38,6 +38,7 @@ else:
 
 INSTALLED_APPS += [
     "django_extensions",
+    "corsheaders",
 ]
 
 
@@ -91,3 +92,13 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=15),
     "ROTATE_REFRESH_TOKENS": True,
 }
+
+MIDDLEWARE += [
+    "corsheaders.middleware.CorsMiddleware",
+]
+
+# CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+    "http://localhost",
+    "http://localhost:80",
+)
